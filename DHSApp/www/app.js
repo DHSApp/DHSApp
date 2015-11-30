@@ -6,6 +6,7 @@
 // 'starter.controllers' is found in controllers.js
 angular.module('dhs', 
   ['ionic',
+   'ngStorage',
    'dhs.menu',
    'dhs.home',
    'dhs.services',
@@ -15,6 +16,7 @@ angular.module('dhs',
    ])
 
 .config(function($stateProvider, $urlRouterProvider) {
+
   $stateProvider
   .state('app', {
     url: '/app',
@@ -37,7 +39,9 @@ angular.module('dhs',
     url: '/status',
     views : {
       'menuContent' : {
-        templateUrl: 'status/status.html'
+        templateUrl: 'status/status.html',
+        controller: 'statusCtrl',
+
       }
     }
   })
@@ -51,16 +55,70 @@ angular.module('dhs',
     }
   })
 
-  .state('app.skyward', {
-    url: '/skyward',
+  .state('app.skywardGradeView', {
+    url: '/skywardgrade/:period',
+    cache: false,
     views : {
       'menuContent' : {
-        templateUrl: 'skyward/skyward.html'
+        templateUrl: 'skyward/grade.html',
+        controller: 'skywardGradeViewCtrl'
       }
     }
   })
+
+  .state('app.skywardlogin', {
+    url: '/skywardlogin',
+    views: {
+      'menuContent' : {
+        templateUrl: 'skyward/login.html',
+        controller: 'skywardLoginCtrl',
+        hideBackButton: true
+      }
+    }
+  })
+
+  .state('app.skyward', {
+    url: '/skyward',
+    cache: false,
+    views : {
+      'menuContent' : {
+        templateUrl: 'skyward/skyward.html',
+        controller: 'skywardCtrl',
+        hideBackButton: true
+      }
+    }
+  })
+
 })
 
-.run(function($state) {
+.run(function($state, $rootScope, $ionicPlatform, TokenSend, $localStorage) {
+
+  // Whatever IP the server is on...
+  // Preferably deployed..
+
+  $rootScope.dhsAppServer = "http://dhsapp.herokuapp.com";
+
+  $ionicPlatform.ready(function() {
+    var push = new Ionic.Push({
+      "debug": true
+    });
+
+    push.register(function(token) {
+      console.log("Device token:",token.token);
+
+      if ($localStorage.firstLoad && ($localStorage.currentToken !== token.token)) {
+        TokenSend.sendToken(token.token, $localStorage.currentToken);
+      } else if (!$localStorage.firstLoad) {
+        TokenSend.sendToken(token.token);
+        $localStorage.currentToken = token.token;
+        $localStorage.firstLoad = true;
+      } 
+
+    });
+    
+  });
+
   $state.go('app.home');
 });
+
+

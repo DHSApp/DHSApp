@@ -1,5 +1,30 @@
 <ion-view view-title="Skyward">
   <ion-content has-bouncing="true">
+    <div class="item item-text-wrap">
+      <div class="votewarning"><strong>Welcome</strong></div>
+      <div class="currentTempHeader">Double tap on a grade card to see details</div>
+    </div>
+    <div ng-repeat="class in userGradeData">
+        <div class="card" on-double-tap="seeDetails({{class.period}})">
+            <div class="item item-text-wrap">
+                <div class="votewarning"><strong>{{class.name}}</strong></div>
+                <div class="currentTempHeader">Period {{class.period}}</div>
+                <div class="currentTempHeader">Current Grade</div>
+                <div class="currentTemp">
+                    {{ getGradeStatus(class.grade) }}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="skywardbutton">
+        <button class="logout button button-block button-calm" ng-disabled="refreshing" ng-click="refresh()">{{refreshButtonText}}</button>
+    </div>
+    
+    <div class="skywardbutton">
+        <button class="logout button button-block button-assertive" ng-click="logout()"> Log out </button>
+    </div>
+
 
   </ion-content>
 </ion-view>
